@@ -1,23 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+const API = "http://localhost:5000/tasks";
 
 function App() {
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+
+  const fetchTasks = async () => {
+    const res = await axios.get("http://localhost:5000/tasks");
+    setTasks(res.data);
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const addTask = async () => {
+    await axios.post("http://localhost:5000/tasks", { title });
+    setTitle("");
+    fetchTasks();
+  };
+
+  const deleteTask = async (id) => {
+    await axios.delete(`http://localhost:5000/tasks/${id}`);
+    fetchTasks();
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Project Manager</h1>
+
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Task Title"
+      />
+      <button onClick={addTask}>Add Task</button>
+
+      <ul>
+        {tasks.map((task) => (
+          <li key={task._id}>
+            {task.title}
+            <button onClick={() => deleteTask(task._id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
